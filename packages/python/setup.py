@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="studex-cli",
-    version="1.0.0",
+    version="1.0.1",
     description="A command line interface for Studex platform",
     author="itshivams",
     license="MIT",

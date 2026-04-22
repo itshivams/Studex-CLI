@@ -21,7 +21,7 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version number of Studex CLI",
 	Long:  `All software has versions. This is Studex CLI's`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("studex-cli version 1.0.0")
+		fmt.Println("studex-cli version 1.0.1")
 	},
 }
 
@@ -40,7 +40,7 @@ func init() {
 	rootCmd.Run = func(cmd *cobra.Command, args []string) {
 		v, _ := cmd.Flags().GetBool("version")
 		if v {
-			fmt.Println("studex-cli version 1.0.0")
+			fmt.Println("studex-cli version 1.0.1")
 			return
 		}
 		StartInteractiveMode()

@@ -6,7 +6,7 @@ import tarfile
 import zipfile
 import subprocess
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
 def get_platform_info():
     sys_plat = platform.system().lower()

@@ -1,8 +1,8 @@
 class StudexCli < Formula
   desc "A command line interface for Studex platform"
   homepage "https://github.com/itshivams/Studex-CLI"
-  url "https://github.com/itshivams/Studex-CLI/archive/refs/tags/v1.0.0.tar.gz"
-  version "1.0.0"
+  url "https://github.com/itshivams/Studex-CLI/archive/refs/tags/v1.0.1.tar.gz"
+  version "1.0.1"
   sha256 ""
   license "MIT"
 
