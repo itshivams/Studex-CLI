@@ -57,6 +57,7 @@ winget:
       name: "itshivams"
       email: "itshivams@users.noreply.github.com"
     publisher: "Studex"
+    license: "MIT"
 
 chocolateys:
   - name: studex-cli
