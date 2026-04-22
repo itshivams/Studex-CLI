@@ -1,0 +1,17 @@
+{
+  "name": "studex-cli",
+  "version": "1.0.0",
+  "description": "A command line interface for Studex platform",
+  "bin": {
+    "studex-cli": "run.js"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itshivams/Studex-CLI.git"
+  },
+  "author": "itshivams",
+  "license": "MIT"
+}

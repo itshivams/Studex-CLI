@@ -1,0 +1,69 @@
+version: 2
+project_name: studex-cli
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+nfpms:
+  - file_name_template: '{{ .ProjectName }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+    vendor: Studex
+    homepage: https://github.com/itshivams/Studex-CLI
+    maintainer: "Studex <itshivams@users.noreply.github.com>"
+    description: "A command line interface for Studex platform"
+    license: MIT
+    formats:
+      - deb
+      - rpm
+
+brews:
+  - repository:
+      owner: itshivams
+      name: homebrew-studex-cli
+    commit_author:
+      name: itshivams
+      email: itshivams@users.noreply.github.com
+    description: "A command line interface for Studex platform"
+    homepage: "https://github.com/itshivams/Studex-CLI"
+    test: |
+      system "#{bin}/studex-cli", "--version"
+
+winget:
+  - repository:
+      owner: itshivams
+      name: winget-pkgs
+      branch: "studex-cli-{{.Version}}"
+    commit_author:
+      name: "itshivams"
+      email: "itshivams@users.noreply.github.com"
+    publisher: "Studex"
+
+chocolates:
+  - name: studex-cli
+    owners: itshivams
+    title: Studex CLI
+    authors: itshivams
+    project_url: https://github.com/itshivams/Studex-CLI
+    url_template: "https://github.com/itshivams/Studex-CLI/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    license_url: https://github.com/itshivams/Studex-CLI/blob/main/LICENSE
+    require_license_acceptance: false

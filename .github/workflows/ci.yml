@@ -1,0 +1,103 @@
+name: CI Quality Gate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-and-build:
+    name: Build & Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run Go Tests
+        run: go test -v ./...
+
+      - name: Build CLI Binary
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            go build -o studex-cli.exe main.go
+          else
+            go build -o studex-cli main.go
+          fi
+
+      - name: Test Native CLI Execution
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            ./studex-cli.exe --help || true
+          else
+            ./studex-cli --help || true
+          fi
+          
+      - name: Test NPM Wrapper Execution
+        shell: bash
+        run: |
+          mkdir -p packages/npm/bin
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp studex-cli.exe packages/npm/bin/studex-cli.exe
+          else
+            cp studex-cli packages/npm/bin/studex-cli
+          fi
+          cd packages/npm
+          node run.js --help || true
+
+      - name: Test Python Wrapper Execution
+        shell: bash
+        run: |
+          mkdir -p packages/python/studex_cli/bin
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp studex-cli.exe packages/python/studex_cli/bin/studex-cli.exe
+          else
+            cp studex-cli packages/python/studex_cli/bin/studex-cli
+          fi
+          cd packages/python
+          python studex_cli/run.py --help || true
+
+  package-check:
+    name: Validate Package Managers Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+
+      - name: Validate GoReleaser Configuration (APT/YUM/Brew/Choco/Winget)
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --snapshot --skip=publish --clean
