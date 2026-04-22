@@ -58,7 +58,7 @@ winget:
       email: "itshivams@users.noreply.github.com"
     publisher: "Studex"
 
-chocolates:
+chocolateys:
   - name: studex-cli
     owners: itshivams
     title: Studex CLI
