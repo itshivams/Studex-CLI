@@ -60,14 +60,4 @@ winget:
     license: "MIT"
     short_description: "A command line interface for Studex Portal"
 
-chocolateys:
-  - name: studex-cli
-    owners: itshivams
-    title: Studex CLI
-    authors: itshivams
-    project_url: https://github.com/itshivams/Studex-CLI
-    url_template: "https://github.com/itshivams/Studex-CLI/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-    license_url: https://github.com/itshivams/Studex-CLI/blob/main/LICENSE
-    require_license_acceptance: false
-    summary: "A command line interface for Studex Portal"
-    description: "A command line interface for Studex Portal"
+
