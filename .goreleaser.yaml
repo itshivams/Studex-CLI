@@ -47,17 +47,3 @@ brews:
     homepage: "https://github.com/itshivams/Studex-CLI"
     test: |
       system "#{bin}/studex-cli", "--version"
-
-winget:
-  - repository:
-      owner: itshivams
-      name: winget-pkgs
-      branch: "studex-cli-{{.Version}}"
-    commit_author:
-      name: "itshivams"
-      email: "itshivams@users.noreply.github.com"
-    publisher: "Studex"
-    license: "MIT"
-    short_description: "A command line interface for Studex Portal"
-
-
