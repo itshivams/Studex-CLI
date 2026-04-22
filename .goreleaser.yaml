@@ -30,7 +30,7 @@ nfpms:
     vendor: Studex
     homepage: https://github.com/itshivams/Studex-CLI
     maintainer: "Studex <itshivams@users.noreply.github.com>"
-    description: "A command line interface for Studex platform"
+    description: "A command line interface for Studex Portal"
     license: MIT
     formats:
       - deb
@@ -43,7 +43,7 @@ brews:
     commit_author:
       name: itshivams
       email: itshivams@users.noreply.github.com
-    description: "A command line interface for Studex platform"
+    description: "A command line interface for Studex Portal"
     homepage: "https://github.com/itshivams/Studex-CLI"
     test: |
       system "#{bin}/studex-cli", "--version"
@@ -58,6 +58,7 @@ winget:
       email: "itshivams@users.noreply.github.com"
     publisher: "Studex"
     license: "MIT"
+    short_description: "A command line interface for Studex Portal"
 
 chocolateys:
   - name: studex-cli
@@ -68,3 +69,5 @@ chocolateys:
     url_template: "https://github.com/itshivams/Studex-CLI/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     license_url: https://github.com/itshivams/Studex-CLI/blob/main/LICENSE
     require_license_acceptance: false
+    summary: "A command line interface for Studex Portal"
+    description: "A command line interface for Studex Portal"
