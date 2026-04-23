@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/charmbracelet/glamour"
 	"github.com/fatih/color"
 	"github.com/itshivams/studex-cli/internal/api"
 	"github.com/itshivams/studex-cli/internal/config"
@@ -389,21 +390,90 @@ func myFeedBlogsMenu() {
 		}
 		color.HiCyan("========================================================\n")
 
-		if end >= totalBlogs {
-			color.Green("You have reached the end of the feed.\n")
-			break
+		var options []string
+		for i := start; i < end; i++ {
+			options = append(options, fmt.Sprintf("Read: %s", blogs[i].Title))
 		}
+		if end < totalBlogs {
+			options = append(options, "Show more")
+		}
+		options = append(options, "Go back")
 
 		var nextAction string
 		prompt := &survey.Select{
 			Message: "What would you like to do?",
-			Options: []string{"Show more", "Go back"},
+			Options: options,
 		}
 		err = survey.AskOne(prompt, &nextAction)
 		if err != nil || nextAction == "Go back" {
 			break
 		}
 
-		page++
+		if nextAction == "Show more" {
+			page++
+			continue
+		}
+
+		var selectedSlug string
+		for i := start; i < end; i++ {
+			if nextAction == fmt.Sprintf("Read: %s", blogs[i].Title) {
+				selectedSlug = blogs[i].Slug
+				break
+			}
+		}
+
+		if selectedSlug != "" {
+			viewBlog(selectedSlug)
+		}
 	}
+}
+
+func viewBlog(slug string) {
+	color.Cyan("\nFetching blog details...\n")
+	res, err := api.GetBlogView(slug)
+	if err != nil {
+		color.Red("Error fetching blog: %v\n", err)
+		return
+	}
+
+	b := res.Blog
+	timeStr := formatRelativeTime(b.CreatedAt)
+
+	color.HiCyan("\n========================================================\n")
+	color.HiWhite("%s\n", b.Title)
+	color.HiMagenta("By %s (@%s) • %s • %d min read\n", b.Author.FullName, b.Author.Username, timeStr, b.ReadTime)
+
+	if len(b.Tags) > 0 {
+		color.HiBlue("Tags: %v\n", b.Tags)
+	}
+
+	likeCount := b.LikesCount
+	if b.LikedBy != nil {
+		likeCount = len(b.LikedBy)
+	}
+
+	color.HiGreen("👍 %d | 💬 %d | 👁️ %d\n", likeCount, b.CommentsCount, b.Views)
+	color.HiCyan("--------------------------------------------------------\n")
+
+	if b.Markdown != "" {
+		renderer, err := glamour.NewTermRenderer(
+			glamour.WithAutoStyle(),
+			glamour.WithWordWrap(100),
+		)
+		if err == nil {
+			rendered, err := renderer.Render(b.Markdown)
+			if err == nil {
+				fmt.Print(rendered)
+			} else {
+				fmt.Println(b.Markdown)
+			}
+		} else {
+			fmt.Println(b.Markdown)
+		}
+	}
+
+	color.HiCyan("\n========================================================\n")
+
+	var dummy string
+	survey.AskOne(&survey.Input{Message: "Press Enter to go back..."}, &dummy)
 }

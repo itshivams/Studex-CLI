@@ -30,6 +30,13 @@ type BlogItem struct {
 	UpdatedAt     string     `json:"updatedAt"`
 	Views         int        `json:"views"`
 	ReadTime      int        `json:"readTime"`
+	Markdown      string     `json:"markdown,omitempty"`
+	LikedBy       []string   `json:"likedBy,omitempty"`
+}
+
+type BlogViewResponse struct {
+	Ok   bool     `json:"ok"`
+	Blog BlogItem `json:"blog"`
 }
 
 type BlogListResponse struct {
@@ -61,6 +68,37 @@ func GetBlogs() (*BlogListResponse, error) {
 	}
 
 	var res BlogListResponse
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func GetBlogView(slug string) (*BlogViewResponse, error) {
+	url := fmt.Sprintf("%s/blog/view?slug=%s", BaseURL, slug)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	token := config.GetToken()
+	if token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch blog view with status: %d", resp.StatusCode)
+	}
+
+	var res BlogViewResponse
 	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
 		return nil, err
 	}
