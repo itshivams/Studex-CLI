@@ -91,7 +91,13 @@ func loggedInMenu() {
 
 	switch choice {
 	case options[0]:
-		color.Yellow("\n[WIP] Fetching My Profile...\n")
+		color.Cyan("\nFetching My Profile...\n")
+		profile, err := api.GetMyProfile()
+		if err != nil {
+			color.Red("Error fetching profile: %v\n", err)
+		} else {
+			displayProfile(profile)
+		}
 	case options[1]:
 		color.Yellow("\n[WIP] Send Message...\n")
 	case options[2]:
@@ -169,29 +175,45 @@ func performSearch(query string, byUsername bool) {
 	}
 
 	for _, u := range users {
-		color.Cyan("\n--- User Profile ---")
-		fmt.Printf("Username: %s\n", u.Username)
-		fmt.Printf("Name: %s\n", u.FullName)
-		fmt.Printf("Role: %s\n", u.Role)
-		fmt.Printf("Status: %s\n", u.Status)
-		fmt.Printf("Bio: %s\n", u.Bio)
-		fmt.Printf("Location: %s\n", u.Location)
-		if u.LastSeen != "" {
-			fmt.Printf("Last Seen: %s\n", formatRelativeTime(u.LastSeen))
-		}
-		fmt.Printf("Organization: %s\n", u.Organization)
-		fmt.Printf("Followers: %d | Following: %d\n", u.FollowersCount, u.FollowingCount)
-		fmt.Printf("Posts: %d | Blogs: %d\n", u.PostsCount, u.BlogsCount)
+		displayProfile(&u)
+	}
+}
 
-		studexURL := fmt.Sprintf("https://studex.itshivam.in/profile/%s", u.Username)
-		fmt.Printf("\nLinks:\n")
-		fmt.Printf("- \033]8;;%s\033\\Studex Profile\033]8;;\033\\\n", studexURL)
-		if u.Linkedin != "" {
-			fmt.Printf("- \033]8;;%s\033\\LinkedIn\033]8;;\033\\\n", u.Linkedin)
-		}
-		if u.Github != "" {
-			fmt.Printf("- \033]8;;%s\033\\GitHub\033]8;;\033\\\n", u.Github)
-		}
+func displayProfile(u *api.UserProfile) {
+	color.Cyan("\n--- User Profile ---")
+	fmt.Printf("Username: %s\n", u.Username)
+	if u.Email != "" {
+		fmt.Printf("Email: %s\n", u.Email)
+	}
+	fmt.Printf("Name: %s\n", u.FullName)
+	if u.Gender != "" {
+		fmt.Printf("Gender: %s\n", u.Gender)
+	}
+	fmt.Printf("Role: %s\n", u.Role)
+	fmt.Printf("Status: %s\n", u.Status)
+	fmt.Printf("Bio: %s\n", u.Bio)
+	fmt.Printf("Location: %s\n", u.Location)
+	if u.LastSeen != "" {
+		fmt.Printf("Last Seen: %s\n", formatRelativeTime(u.LastSeen))
+	}
+	fmt.Printf("Organization: %s\n", u.Organization)
+	fmt.Printf("Followers: %d | Following: %d\n", u.FollowersCount, u.FollowingCount)
+	fmt.Printf("Posts: %d | Blogs: %d\n", u.PostsCount, u.BlogsCount)
+
+	studexURL := fmt.Sprintf("https://studex.itshivam.in/profile/%s", u.Username)
+	fmt.Printf("\nLinks:\n")
+	fmt.Printf("- \033]8;;%s\033\\Studex Profile\033]8;;\033\\\n", studexURL)
+	if u.Website != "" {
+		fmt.Printf("- \033]8;;%s\033\\Website\033]8;;\033\\\n", u.Website)
+	}
+	if u.Linkedin != "" {
+		fmt.Printf("- \033]8;;%s\033\\LinkedIn\033]8;;\033\\\n", u.Linkedin)
+	}
+	if u.Github != "" {
+		fmt.Printf("- \033]8;;%s\033\\GitHub\033]8;;\033\\\n", u.Github)
+	}
+	if u.Instagram != "" {
+		fmt.Printf("- \033]8;;%s\033\\Instagram\033]8;;\033\\\n", u.Instagram)
 	}
 }
 

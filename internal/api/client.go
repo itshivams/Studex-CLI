@@ -15,21 +15,26 @@ const BaseURL = "https://studex.itshivam.in/api"
 type UserProfile struct {
 	Username       string   `json:"username"`
 	FullName       string   `json:"full_name"`
+	Email          string   `json:"email,omitempty"`
 	Role           string   `json:"role"`
 	UserPic        string   `json:"userpic"`
 	Bio            string   `json:"bio"`
 	Github         string   `json:"github"`
 	Instagram      string   `json:"instagram"`
 	Linkedin       string   `json:"linkedin"`
+	Website        string   `json:"website,omitempty"`
 	Status         string   `json:"status"`
+	Gender         string   `json:"gender,omitempty"`
 	Location       string   `json:"location"`
 	Organization   string   `json:"organization"`
-	LastSeen       string   `json:"last_seen"`
+	LastSeen       string   `json:"last_seen,omitempty"`
 	FollowersCount int      `json:"followersCount"`
 	FollowingCount int      `json:"followingCount"`
 	PostsCount     int      `json:"posts_count"`
 	BlogsCount     int      `json:"blogs_count"`
 	IsFollowing    bool     `json:"is_following"`
+	Followers      []string `json:"followers,omitempty"`
+	Following      []string `json:"following,omitempty"`
 }
 
 type AuthResponse struct {
@@ -113,6 +118,38 @@ func SearchUser(username string) ([]UserProfile, error) {
 	}
 
 	return users, nil
+}
+
+func GetMyProfile() (*UserProfile, error) {
+	url := fmt.Sprintf("%s/user-profile", BaseURL)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	token := config.GetToken()
+	if token == "" {
+		return nil, fmt.Errorf("no authentication token found")
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch profile with status: %d", resp.StatusCode)
+	}
+
+	var profile UserProfile
+	if err := json.NewDecoder(resp.Body).Decode(&profile); err != nil {
+		return nil, err
+	}
+
+	return &profile, nil
 }
 
 func SearchUserByName(name string) ([]UserProfile, error) {
