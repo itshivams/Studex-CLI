@@ -227,10 +227,10 @@ func LiveDiscussionMenu() {
 	}
 	defer conn.Close()
 
-	clrSuccess.Println("  ✓ Connected!\n")
+	clrSuccess.Println("  ✓ Connected!")
 
 	printDiscussionBanner(onlineCount, myUsername, isAnon)
-	clrSystem.Println("\n  ── Chat history will appear below ──────────────────────────\n")
+	clrSystem.Println("\n  ── Chat history will appear below ──────────────────────────")
 
 	var mu sync.Mutex 
 	incoming := make(chan *api.ChatMessage, 64)
@@ -287,7 +287,7 @@ func LiveDiscussionMenu() {
 			cmd := strings.ToLower(strings.Fields(line)[0])
 			switch cmd {
 			case "/quit", "/exit":
-				clrSuccess.Println("\n  👋  Left the discussion. See you next time!\n")
+				clrSuccess.Println("\n  👋  Left the discussion. See you next time!")
 				return
 
 			case "/help":
@@ -301,12 +301,12 @@ func LiveDiscussionMenu() {
 				cnt := onlineCount
 				mu.Unlock()
 				printDiscussionBanner(cnt, myUsername, isAnon)
-				clrSystem.Println("\n  ── Screen cleared ──────────────────────────────────────────\n")
+				clrSystem.Println("\n  ── Screen cleared ──────────────────────────────────────────")
 
 			case "/anon":
 				isAnon = !isAnon
 				if isAnon {
-					clrAnon.Println("\n  👻  Anonymous mode ON – your identity is hidden.\n")
+					clrAnon.Println("\n  👻  Anonymous mode ON – your identity is hidden.")
 				} else {
 					clrHighlight.Printf("\n  👤  Anonymous mode OFF – chatting as %s.\n\n", myUsername)
 				}
@@ -344,5 +344,5 @@ func LiveDiscussionMenu() {
 		clrPrompt.Print("  » ")
 	}
 
-	clrSuccess.Println("\n  👋  Disconnected.\n")
+	clrSuccess.Println("\n  👋  Disconnected.")
 }
