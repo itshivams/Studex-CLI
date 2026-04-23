@@ -107,7 +107,7 @@ func loggedInMenu() {
 	case options[4]:
 		searchUserMenu()
 	case options[5]:
-		color.Yellow("\n[WIP] Live Discussion...\n")
+		LiveDiscussionMenu()
 	case options[6]:
 		color.Yellow("\n[WIP] Settings...\n")
 	case options[7]:

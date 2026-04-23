@@ -47,6 +47,7 @@ func handleLogin() {
 			color.Red("Could not save token: %v", err)
 			return
 		}
+		_ = config.SetStoredUsername(resp.Username)
 		color.Green("\nLogin successful! Welcome %s\n", resp.Username)
 	} else {
 		color.Red("\nLogin failed: Token not received\n")
@@ -169,6 +170,7 @@ func handleSignup() {
 		if err != nil {
 			color.Red("Could not save token: %v\n", err)
 		} else {
+			_ = config.SetStoredUsername(resp3.User.Username)
 			color.Green("You are now logged in as %s\n", resp3.User.Username)
 		}
 	}

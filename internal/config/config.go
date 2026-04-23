@@ -14,7 +14,22 @@ var (
 )
 
 type Config struct {
-	Token string `mapstructure:"token"`
+	Token    string `mapstructure:"token"`
+	Username string `mapstructure:"username"`
+}
+
+func GetStoredUsername() string {
+	return viper.GetString("username")
+}
+
+func SetStoredUsername(username string) error {
+	viper.Set("username", username)
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	configPath := filepath.Join(home, fmt.Sprintf("%s.%s", configFileName, configFileType))
+	return viper.WriteConfigAs(configPath)
 }
 
 func InitConfig() error {
