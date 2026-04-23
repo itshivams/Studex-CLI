@@ -57,7 +57,7 @@ func mainMenu() {
 	case options[1]:
 		handleLogin()
 	case options[2]:
-		color.Yellow("\nSignup is currently available via the web portal or mobile app.\n")
+		handleSignup()
 	case options[3]:
 		color.Green("Goodbye!")
 		os.Exit(0)
@@ -115,49 +115,6 @@ func loggedInMenu() {
 	}
 }
 
-func handleLogin() {
-	qs := []*survey.Question{
-		{
-			Name:     "username",
-			Prompt:   &survey.Input{Message: "Username or Email:"},
-			Validate: survey.Required,
-		},
-		{
-			Name:     "password",
-			Prompt:   &survey.Password{Message: "Password:"},
-			Validate: survey.Required,
-		},
-	}
-
-	answers := struct {
-		Username string
-		Password string
-	}{}
-
-	err := survey.Ask(qs, &answers)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("Logging in...")
-	resp, err := api.Login(answers.Username, answers.Password)
-	if err != nil {
-		color.Red("Login failed: %v", err)
-		return
-	}
-
-	if resp.Access != "" {
-		err = config.SetToken(resp.Access)
-		if err != nil {
-			color.Red("Could not save token: %v", err)
-			return
-		}
-		color.Green("\nLogin successful! Welcome %s\n", resp.Username)
-	} else {
-		color.Red("\nLogin failed: Token not received\n")
-	}
-}
 
 func searchUserMenu() {
 	options := []string{
@@ -227,3 +184,4 @@ func performSearch(query string, byUsername bool) {
 		color.White("\nRaw Data:\n%s\n", string(b))
 	}
 }
+
