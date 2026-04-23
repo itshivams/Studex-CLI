@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/fatih/color"
@@ -176,12 +176,56 @@ func performSearch(query string, byUsername bool) {
 		fmt.Printf("Status: %s\n", u.Status)
 		fmt.Printf("Bio: %s\n", u.Bio)
 		fmt.Printf("Location: %s\n", u.Location)
+		if u.LastSeen != "" {
+			fmt.Printf("Last Seen: %s\n", formatRelativeTime(u.LastSeen))
+		}
 		fmt.Printf("Organization: %s\n", u.Organization)
 		fmt.Printf("Followers: %d | Following: %d\n", u.FollowersCount, u.FollowingCount)
 		fmt.Printf("Posts: %d | Blogs: %d\n", u.PostsCount, u.BlogsCount)
 
-		b, _ := json.MarshalIndent(u, "", "  ")
-		color.White("\nRaw Data:\n%s\n", string(b))
+		studexURL := fmt.Sprintf("https://studex.itshivam.in/profile/%s", u.Username)
+		fmt.Printf("\nLinks:\n")
+		fmt.Printf("- \033]8;;%s\033\\Studex Profile\033]8;;\033\\\n", studexURL)
+		if u.Linkedin != "" {
+			fmt.Printf("- \033]8;;%s\033\\LinkedIn\033]8;;\033\\\n", u.Linkedin)
+		}
+		if u.Github != "" {
+			fmt.Printf("- \033]8;;%s\033\\GitHub\033]8;;\033\\\n", u.Github)
+		}
 	}
 }
 
+func formatRelativeTime(timeStr string) string {
+	t, err := time.Parse(time.RFC3339, timeStr)
+	if err != nil {
+		return timeStr
+	}
+	d := time.Since(t)
+
+	if d < time.Minute {
+		return "just now"
+	} else if d < time.Hour {
+		mins := int(d.Minutes())
+		return fmt.Sprintf("%d m ago", mins)
+	} else if d < 24*time.Hour {
+		hrs := int(d.Hours())
+		return fmt.Sprintf("%d hr ago", hrs)
+	} else if d < 30*24*time.Hour {
+		days := int(d.Hours() / 24)
+		if days == 1 {
+			return "1 day ago"
+		}
+		return fmt.Sprintf("%d days ago", days)
+	} else if d < 365*24*time.Hour {
+		months := int(d.Hours() / 24 / 30)
+		if months == 1 {
+			return "1 month ago"
+		}
+		return fmt.Sprintf("%d months ago", months)
+	}
+	years := int(d.Hours() / 24 / 365)
+	if years == 1 {
+		return "1 year ago"
+	}
+	return fmt.Sprintf("%d years ago", years)
+}
