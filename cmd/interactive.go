@@ -69,13 +69,12 @@ func loggedInMenu() {
 		"1. My Profile",
 		"2. Messages",
 		"3. My Notifications",
-		"4. My feed",
-		"5. Blogs",
-		"6. Search User",
-		"7. Live Discussion",
-		"8. Settings",
-		"9. Logout",
-		"10. Exit",
+		"4. My Feed(Blogs)",
+		"5. Search User",
+		"6. Live Discussion",
+		"7. Settings",
+		"8. Logout",
+		"9. Exit",
 	}
 
 	var choice string
@@ -101,21 +100,19 @@ func loggedInMenu() {
 	case options[1]:
 		messagesMenu()
 	case options[2]:
-		color.Yellow("\n[WIP] My Notifications...\n")
+		myNotificationsMenu()
 	case options[3]:
-		color.Yellow("\n[WIP] My feed...\n")
+		myFeedBlogsMenu()
 	case options[4]:
-		color.Yellow("\n[WIP] Blogs...\n")
-	case options[5]:
 		searchUserMenu()
-	case options[6]:
+	case options[5]:
 		color.Yellow("\n[WIP] Live Discussion...\n")
-	case options[7]:
+	case options[6]:
 		color.Yellow("\n[WIP] Settings...\n")
-	case options[8]:
+	case options[7]:
 		config.ClearToken()
 		color.Green("\nLogged out successfully!\n")
-	case options[9]:
+	case options[8]:
 		color.Green("Goodbye!")
 		os.Exit(0)
 	}
@@ -313,4 +310,100 @@ func formatRelativeTime(timeStr string) string {
 		return "1 year ago"
 	}
 	return fmt.Sprintf("%d years ago", years)
+}
+
+func myNotificationsMenu() {
+	color.Cyan("\nFetching My Notifications...\n")
+	notifications, err := api.GetNotifications()
+	if err != nil {
+		color.Red("Error fetching notifications: %v\n", err)
+		return
+	}
+
+	if len(notifications) == 0 {
+		color.Yellow("You have no notifications.\n")
+		return
+	}
+
+	color.HiCyan("\n=== My Notifications ===")
+	for i, notif := range notifications {
+		timeStr := formatRelativeTime(notif.CreatedAt)
+		
+		statusStr := color.YellowString("NEW")
+		if notif.Read {
+			statusStr = color.HiBlackString("READ")
+		}
+
+		fmt.Printf("\n[%d] %s [%s]\n", i+1, color.HiWhiteString(notif.Title), statusStr)
+		color.HiBlack("    %s\n", notif.Message)
+		color.HiBlack("    Received: %s\n", timeStr)
+	}
+	color.HiCyan("\n========================\n")
+}
+
+func myFeedBlogsMenu() {
+	color.Cyan("\nFetching My Feed...\n")
+	res, err := api.GetBlogs()
+	if err != nil {
+		color.Red("Error fetching blogs: %v\n", err)
+		return
+	}
+
+	if res == nil || len(res.Items) == 0 {
+		color.Yellow("No blogs found in your feed.\n")
+		return
+	}
+
+	blogs := res.Items
+	totalBlogs := len(blogs)
+	limit := 5
+	page := 1
+	totalPages := (totalBlogs + limit - 1) / limit
+
+	for {
+		start := (page - 1) * limit
+		end := start + limit
+		if end > totalBlogs {
+			end = totalBlogs
+		}
+
+		if start >= totalBlogs {
+			color.Yellow("No more blogs to show.\n")
+			break
+		}
+
+		color.HiCyan("\n=== My Feed (Blogs) - Page %d of %d (Total: %d) ===", page, totalPages, totalBlogs)
+		for i := start; i < end; i++ {
+			b := blogs[i]
+			timeStr := formatRelativeTime(b.CreatedAt)
+
+			fmt.Printf("\n[%d] %s\n", i+1, color.HiWhiteString(b.Title))
+			color.HiMagenta("    By %s (@%s) • %s • %d min read\n", b.Author.FullName, b.Author.Username, timeStr, b.ReadTime)
+			color.HiBlack("    %s\n", b.Excerpt)
+
+			if len(b.Tags) > 0 {
+				color.HiBlue("    Tags: %v\n", b.Tags)
+			}
+
+			color.HiGreen("    👍 %d | 💬 %d | 👁️ %d\n", b.LikesCount, b.CommentsCount, b.Views)
+		}
+		color.HiCyan("========================================================\n")
+
+		if end >= totalBlogs {
+			color.Green("You have reached the end of the feed.\n")
+			break
+		}
+
+		var nextAction string
+		prompt := &survey.Select{
+			Message: "What would you like to do?",
+			Options: []string{"Show more", "Go back"},
+		}
+		err = survey.AskOne(prompt, &nextAction)
+		if err != nil || nextAction == "Go back" {
+			break
+		}
+
+		page++
+	}
 }
