@@ -67,7 +67,7 @@ func mainMenu() {
 func loggedInMenu() {
 	options := []string{
 		"1. My Profile",
-		"2. Send Message",
+		"2. Messages",
 		"3. My Notifications",
 		"4. My feed",
 		"5. Blogs",
@@ -99,7 +99,7 @@ func loggedInMenu() {
 			displayProfile(profile)
 		}
 	case options[1]:
-		color.Yellow("\n[WIP] Send Message...\n")
+		messagesMenu()
 	case options[2]:
 		color.Yellow("\n[WIP] My Notifications...\n")
 	case options[3]:
@@ -121,6 +121,69 @@ func loggedInMenu() {
 	}
 }
 
+func messagesMenu() {
+	var recipient string
+	err := survey.AskOne(&survey.Input{Message: "Enter recipient username:"}, &recipient, survey.WithValidator(survey.Required))
+	if err != nil {
+		return
+	}
+
+	color.Cyan("\nFetching chat history with %s...\n", recipient)
+	thread, err := api.GetMessageThread(recipient)
+	if err != nil {
+		color.Red("Error fetching messages: %v\n", err)
+		return
+	}
+
+	fmt.Printf("\n--- Chat with %s ---\n", recipient)
+	if len(thread.Messages) == 0 {
+		color.Yellow("No messages yet.\n")
+	} else {
+		for _, msg := range thread.Messages {
+			timeStr := formatRelativeTime(msg.CreatedAt)
+			sender := msg.From
+
+			if msg.Type == "system" {
+				color.HiBlack("[%s] System: %s\n", timeStr, msg.Text)
+			} else if msg.Type == "call_log" {
+				color.HiMagenta("[%s] %s: %s\n", timeStr, sender, msg.Text)
+			} else {
+				if msg.EncryptedData != nil {
+					color.HiBlue("[%s] %s: 🔒 Encrypted Message\n", timeStr, sender)
+				} else {
+					if sender == recipient {
+						color.HiGreen("[%s] %s: %s\n", timeStr, sender, msg.Text)
+					} else {
+						color.HiCyan("[%s] You: %s\n", timeStr, msg.Text)
+					}
+				}
+			}
+		}
+	}
+	fmt.Println("-----------------------")
+
+	for {
+		var replyText string
+		prompt := &survey.Input{
+			Message: "Type a message (or press enter to go back):",
+		}
+		err = survey.AskOne(prompt, &replyText)
+		if err != nil {
+			return
+		}
+
+		if replyText == "" {
+			break
+		}
+
+		_, err = api.SendMessage(recipient, replyText)
+		if err != nil {
+			color.Red("Failed to send message: %v\n", err)
+		} else {
+			color.Green("Message sent to %s!\n", recipient)
+		}
+	}
+}
 
 func searchUserMenu() {
 	options := []string{
