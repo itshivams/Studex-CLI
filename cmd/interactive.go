@@ -73,9 +73,8 @@ func loggedInMenu() {
 		"4. My Feed(Blogs)",
 		"5. Search User",
 		"6. Live Discussion",
-		"7. Settings",
-		"8. Logout",
-		"9. Exit",
+		"7. Logout",
+		"8. Exit",
 	}
 
 	var choice string
@@ -109,11 +108,9 @@ func loggedInMenu() {
 	case options[5]:
 		LiveDiscussionMenu()
 	case options[6]:
-		color.Yellow("\n[WIP] Settings...\n")
-	case options[7]:
 		config.ClearToken()
 		color.Green("\nLogged out successfully!\n")
-	case options[8]:
+	case options[7]:
 		color.Green("Goodbye!")
 		os.Exit(0)
 	}
